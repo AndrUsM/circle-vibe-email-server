@@ -1,0 +1,93 @@
+The error you're encountering:
+
+```
+Error: connect ECONNREFUSED 127.0.0.1:587
+```
+
+means that your NestJS application is trying to connect to a mail server on `127.0.0.1` (localhost) at port `587`, but nothing is listening on that port — the connection is being refused.
+
+### What this typically means:
+
+* **No mail server is running on localhost:587**.
+* **Your mail configuration is incorrect**, especially if you're intending to use an external SMTP service (like Gmail, Mailgun, SendGrid, etc.).
+
+---
+
+### 🔧 How to Fix
+
+#### 1. **Check your mail configuration**
+
+Go to where your mail service is configured (e.g., using `@nestjs-modules/mailer` or similar), and check for something like this:
+
+```ts
+MailerModule.forRoot({
+  transport: {
+    host: 'localhost',
+    port: 587,
+    secure: false,
+    auth: {
+      user: 'your-username',
+      pass: 'your-password',
+    },
+  },
+  defaults: {
+    from: '"No Reply" <noreply@example.com>',
+  },
+});
+```
+
+If you're using a real email provider, **replace `localhost` with the SMTP host of your provider**, such as:
+
+* Gmail: `smtp.gmail.com`
+* Mailgun: `smtp.mailgun.org`
+* SendGrid: `smtp.sendgrid.net`
+
+And set the proper port (usually `587` for TLS, `465` for SSL, or `25` for unencrypted).
+
+Example using Gmail:
+
+```ts
+MailerModule.forRoot({
+  transport: {
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    auth: {
+      user: 'your-email@gmail.com',
+      pass: 'your-app-password', // Note: Gmail now requires an app password, not your main password
+    },
+  },
+});
+```
+
+---
+
+#### 2. **If you're intending to run a local SMTP server**
+
+Make sure you have an SMTP server running on port 587.
+
+You could use tools like:
+
+* **MailDev** (for dev/testing): [https://github.com/maildev/maildev](https://github.com/maildev/maildev)
+* **MailHog** (popular with Docker): [https://github.com/mailhog/MailHog](https://github.com/mailhog/MailHog)
+
+Then configure your NestJS app accordingly (typically host: `localhost`, port: `1025` or as MailDev/MailHog specify).
+
+---
+
+### ✅ Summary
+
+* 🔴 Current error: You're connecting to `localhost:587`, but no mail server is running there.
+* ✅ Fix: Either run a local SMTP server or update your config to use a real SMTP provider (e.g., Gmail, Mailgun, etc.).
+
+Let me know which provider you're using (or planning to use), and I can help you configure it properly.
+
+
+
+
+localhost:3010/api/mail
+
+{
+  "emails": ["oksud22@gmail.com"],
+  "template": "example"
+}
